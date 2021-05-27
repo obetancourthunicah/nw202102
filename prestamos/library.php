@@ -53,7 +53,7 @@ function cacularPrestamo( $capital, $periodoMeses, $tasaInteresAnual) {
     // cuota = capital / (( 1 - ((1 + tasa)**(-1*periodoMeses))) / tasa);
     $cuotaNivelada = round($capital / ((1 - ((1 + $tasa) ** (-1 * $periodoMeses))) / $tasa), 4);
     $tablaAmortizacion = array();
-    for ($i = 1; $i<=$periodoMeses; $i++) {
+    for ($i = 1; $i<$periodoMeses; $i++) {
         //No Cuota, Interés AbonoCapital Saldo
         $interes = round(($SaldoCapital * $tasa), 4);
         $AbonoCapital = $cuotaNivelada - $interes;
@@ -69,6 +69,20 @@ function cacularPrestamo( $capital, $periodoMeses, $tasaInteresAnual) {
 
         $tablaAmortizacion[] = $arrCuota; // arrTabla.push(jsonObject);
     }
+
+    $cuotaNivelada = $SaldoCapital;
+    $interes = round(($SaldoCapital * $tasa), 4);
+    $AbonoCapital = $cuotaNivelada - $interes;
+    $SaldoCapital = 0;
+
+    $arrCuota = array(
+        "Numero" => $i,
+        "CuotaNivelada" => $cuotaNivelada,
+        "AbonoCapital" => $AbonoCapital,
+        "Interes" => $interes,
+        "Saldo" => $SaldoCapital
+    );
+    $tablaAmortizacion[] = $arrCuota;
     return $tablaAmortizacion;
 }
 

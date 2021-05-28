@@ -6,9 +6,11 @@ require_once "library.php";
 $txtCapital = "100000";
 $txtTasa = "0.25";
 $txtPeriodo = "24";
-$arrTabla = array();
+$prestamo = array();
 
-$clickCount = isset($_SESSION["clickCount"]) ? $_SESSION["clickCount"]: 0;
+$clickCount = isset($_SESSION["clickCount"]) ? $_SESSION["clickCount"] : 0;
+$prestamos = isset($_SESSION["prestamos"]) ? $_SESSION["prestamos"] : array();
+$currentTable = isset($_SESSION["currentTable"]) ? $_SESSION["currentTable"] : -1;
 
 if (isset($_POST["btnCalcular"])) {
     $txtCapital = floatval($_POST["txtCapital"]);
@@ -17,7 +19,20 @@ if (isset($_POST["btnCalcular"])) {
     $clickCount++;
     $_SESSION["clickCount"] = $clickCount;
 
-    $arrTabla = cacularPrestamo($txtCapital, $txtPeriodo, $txtTasa);
+    $prestamo = generarRegistroDePrestamo($txtCapital, $txtPeriodo, $txtTasa);
+    $prestamos[] = $prestamo;
+    $currentTable = count($prestamos) -1;
+    $_SESSION["currentTable"] = $currentTable;
+    $_SESSION["prestamos"] = $prestamos;
+}
+if (isset($_POST["currentTable"])) {
+    if ($currentTable == $_POST["currentTable"]) {
+        $currentTable = -1;
+    } else {
+        $currentTable = $_POST["currentTable"];
+    }
+
+    $_SESSION["currentTable"] = $currentTable;
 }
 //btnCalcular
 ?>
@@ -44,36 +59,66 @@ if (isset($_POST["btnCalcular"])) {
         <br />
         <button type="submit" name="btnCalcular">Calcular</button>
     </form>
-    <hr/>
-    <h2>Prestamos Calculados</h2>
-    <div><b><?php echo $clickCount; ?></b></div>
-    <table>
-        <tr>
-            <th>Cuota</th>
-            <th>Monto</th>
-            <th>Abono a Capital</th>
-            <th>Interés</th>
-            <th>Saldo</th>
-        </tr>
-        <?php
-        foreach ($arrTabla as $cuota) {
-            echo sprintf(
-                "<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>",
-                $cuota["Numero"],
-                $cuota["CuotaNivelada"],
-                $cuota["AbonoCapital"],
-                $cuota["Interes"],
-                $cuota["Saldo"]
-            );
-        }
-        ?>
-    </table>
     <hr />
-    <pre>
-    <?php
-    echo json_encode($arrTabla, JSON_PRETTY_PRINT);
-    ?>
-    </pre>
+    <h2>Prestamos Calculados: <b><?php echo $clickCount; ?></b></h2>
+    <h2>Detalle de Prestamos</h2>
+    <table>
+        <?php 
+            $iterator = 0;
+            foreach($prestamos as $prestamo) { 
+        ?>
+        <tr><td colspan="4"><hr/></td></tr>
+        <tr>
+            <th>Fecha</th>
+            <th>Capital</th>
+            <th>Periodos</th>
+            <th>T. Interés</th>
+        </tr>
+        <tr>
+            <td>
+                <form action="formulario.php" method="post">
+                    <button type="submit" name="currentTable" value="<?php echo $iterator; ?>">
+                        :|
+                    </button>
+                </form>
+                <?php echo $prestamo["fecha"]; ?>
+            </td>
+            <td><?php echo $prestamo["capital"]; ?></td>
+            <td><?php echo $prestamo["periodos"]; ?></td>
+            <td><?php echo $prestamo["tasaInteres"]; ?></td>
+        </tr>
+        <?php if ($currentTable == $iterator) { ?>
+        <tr>
+            <td colspan="4">
+                <table>
+                    <tr>
+                        <th>Cuota</th>
+                        <th>Monto</th>
+                        <th>Abono a Capital</th>
+                        <th>Interés</th>
+                        <th>Saldo</th>
+                    </tr>
+                    <?php
+                    $arrTabla = $prestamo["tablaAmortizacion"];
+                    foreach ($arrTabla as $cuota) {
+                        echo sprintf(
+                            "<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>",
+                            $cuota["Numero"],
+                            $cuota["CuotaNivelada"],
+                            $cuota["AbonoCapital"],
+                            $cuota["Interes"],
+                            $cuota["Saldo"]
+                        );
+                    }
+                    ?>
+                </table>
+            </td>
+        </tr>
+        <?php } //if ?>
+        <?php 
+                $iterator ++;
+            } //foreach?>
+    </table>
 </body>
 
 </html>

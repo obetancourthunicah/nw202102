@@ -42,7 +42,7 @@ $arrPrestamo = array(
 
 */
 
-function cacularPrestamo( $capital, $periodoMeses, $tasaInteresAnual) {
+function calcularPrestamo( $capital, $periodoMeses, $tasaInteresAnual) {
     $tasa = 0; // Tasa Efectiva
     $cuotaNivelada = 0;
     $SaldoCapital = $capital;
@@ -86,4 +86,14 @@ function cacularPrestamo( $capital, $periodoMeses, $tasaInteresAnual) {
     return $tablaAmortizacion;
 }
 
+function generarRegistroDePrestamo($capital, $periodoMeses, $tasaInteresAnual) {
+    $prestamo = array(
+        "fecha"=> date('Y-m-d H:i:s'),
+        "capital"=> $capital,
+        "periodos"=> $periodoMeses,
+        "tasaInteres"=> $tasaInteresAnual,
+        "tablaAmortizacion" => calcularPrestamo($capital, $periodoMeses, $tasaInteresAnual)
+    );
+    return $prestamo;
+} 
 ?>

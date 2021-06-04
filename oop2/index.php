@@ -1,11 +1,13 @@
 <?php
     require_once 'autoloader.php';
-    use Inventario\Producto;
+   
+    use \Dao\Producto;
 
-    $productoA = new Producto();
-    $kardexProductoA = new Inventario\Kardex($productoA);
+    $productos = new Producto();
+    $productosList = $productos->getAll();
 
     echo "<h1>Se genero</h1>";
+    print_r($productosList);
 
 /*
 /--------------------------------/
@@ -19,6 +21,5 @@ FECHA    TIPO   REFERENCIA  ENTRADA  SALIDA  STOCK  COSTO
 2021-05-01 CMP  REFXYZ         10      0      10     100
 2021-05-02 VNT  REFABC         0       2      8
 2021-05-03 INV  INV0001        0       1      7
-
 */
 ?>
